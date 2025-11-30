@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestor Financiero Personal Pro</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header>
+            <div class="header-content">
+                <div class="header-icon">💰</div>
+                <div>
+                    <h1>Gestor Financiero Personal Pro</h1>
+                    <p>Control inteligente de tus finanzas mensuales</p>
+                </div>
+            </div>
+            <div class="header-actions">
+                <button onclick="limpiarDatos()" class="btn-clear">🗑️ Limpiar Todo</button>
+                <button onclick="exportarExcelAvanzado()" class="btn-export-header">📊 Exportar Excel Pro</button>
+            </div>
+        </header>
+
+        <!-- Ingreso Mensual -->
+        <div class="income-card">
+            <div class="income-header">
+                <div class="income-title">
+                    <span class="income-icon">📈</span>
+                    <h2>Ingreso Mensual</h2>
+                </div>
+                <button onclick="editarIngreso()" class="btn-edit" id="btnEditIngreso">
+                    <span>✏️</span> Editar Ingreso
+                </button>
+            </div>
+            <div id="ingresoDisplay" class="income-amount">$0</div>
+            <div id="ingresoEdit" class="income-edit" style="display: none;">
+                <input type="number" id="inputIngreso" placeholder="Ingresa tu salario mensual" class="income-input">
+                <div class="income-buttons">
+                    <button onclick="guardarIngreso()" class="btn-save">💾 Guardar</button>
+                    <button onclick="cancelarIngreso()" class="btn-cancel">❌ Cancelar</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Resumen Financiero -->
+        <div class="summary-section">
+            <h2 class="section-title">
+                <span class="title-icon">📊</span>
+                Resumen Financiero del Mes
+            </h2>
+            <div class="summary-grid">
+                <div class="summary-card total">
+                    <div class="card-icon">💳</div>
+                    <div class="card-content">
+                        <div class="summary-label">Total Gastos</div>
+                        <div class="summary-value" id="totalGastos">$0</div>
+                        <div class="summary-percent" id="porcentajeGastado">0% del ingreso</div>
+                    </div>
+                </div>
+                <div class="summary-card balance" id="balanceCard">
+                    <div class="card-icon">💰</div>
+                    <div class="card-content">
+                        <div class="summary-label">Balance Disponible</div>
+                        <div class="summary-value" id="balance">$0</div>
+                        <div class="summary-sublabel" id="balanceStatus">Disponible</div>
+                    </div>
+                </div>
+                <div class="summary-card paid">
+                    <div class="card-icon">✅</div>
+                    <div class="card-content">
+                        <div class="summary-label">Pagado</div>
+                        <div class="summary-value" id="totalPagado">$0</div>
+                        <div class="summary-sublabel" id="cantidadPagados">0 gastos</div>
+                    </div>
+                </div>
+                <div class="summary-card pending">
+                    <div class="card-icon">⏳</div>
+                    <div class="card-content">
+                        <div class="summary-label">Pendiente</div>
+                        <div class="summary-value" id="totalPendiente">$0</div>
+                        <div class="summary-sublabel" id="cantidadPendientes">0 gastos</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Gráfico de Distribución -->
+        <div class="chart-section" id="chartSection" style="display: none;">
+            <h2 class="section-title">
+                <span class="title-icon">📈</span>
+                Distribución de Gastos por Categoría
+            </h2>
+            <div class="chart-container">
+                <canvas id="categoryChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Gastos por Categoría -->
+        <div class="category-section" id="categorySection" style="display: none;">
+            <h2 class="section-title">
+                <span class="title-icon">🎯</span>
+                Análisis por Categoría
+            </h2>
+            <div class="category-grid" id="categoryGrid"></div>
+        </div>
+
+        <!-- Historial Mensual -->
+        <div class="history-section">
+            <h2 class="section-title">
+                <span class="title-icon">📅</span>
+                Navegación Mensual
+            </h2>
+            <div class="month-selector">
+                <button onclick="cambiarMes(-1)" class="btn-month">
+                    <span>◀</span> Anterior
+                </button>
+                <div class="current-month-display">
+                    <span id="mesActual" class="current-month"></span>
+                    <button onclick="volverHoy()" class="btn-today">📍 Hoy</button>
+                </div>
+                <button onclick="cambiarMes(1)" class="btn-month">
+                    Siguiente <span>▶</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Formulario Mejorado -->
+        <div class="form-card">
+            <h2 class="section-title">
+                <span class="title-icon">➕</span>
+                <span id="formTitle">Agregar Nuevo Gasto</span>
+            </h2>
+            <form id="gastoForm" class="expense-form">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>
+                            <span class="label-icon">📝</span>
+                            Nombre del Gasto *
+                        </label>
+                        <input type="text" id="nombre" placeholder="Ej: Netflix, Mercado, Transporte" required>
+                    </div>
+                    <div class="form-group">
+                        <label>
+                            <span class="label-icon">💵</span>
+                            Monto (COP) *
+                        </label>
+                        <input type="number" id="monto" placeholder="Ej: 50000" required min="0">
+                    </div>
+                    <div class="form-group">
+                        <label>
+                            <span class="label-icon">📅</span>
+                            Fecha de Pago *
+                        </label>
+                        <input type="date" id="fecha" required>
+                    </div>
+                    <div class="form-group">
+                        <label>
+                            <span class="label-icon">🏷️</span>
+                            Categoría *
+                        </label>
+                        <select id="categoria" required>
+                            <option value="Servicios">💡 Servicios</option>
+                            <option value="Alimentación">🍔 Alimentación</option>
+                            <option value="Transporte">🚗 Transporte</option>
+                            <option value="Vivienda">🏠 Vivienda</option>
+                            <option value="Salud">🏥 Salud</option>
+                            <option value="Entretenimiento">🎮 Entretenimiento</option>
+                            <option value="Educación">📚 Educación</option>
+                            <option value="Ahorro">💎 Ahorro</option>
+                            <option value="Ropa">👕 Ropa</option>
+                            <option value="Imprevistos">⚠️ Imprevistos</option>
+                            <option value="Otros">📦 Otros</option>
+                        </select>
+                    </div>
+                    <div class="form-group checkbox-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="recurrente">
+                            <span class="checkmark"></span>
+                            <span class="checkbox-text">🔄 Gasto Recurrente Mensual</span>
+                        </label>
+                    </div>
+                    <div class="form-group submit-group">
+                        <button type="submit" class="btn-submit" id="btnSubmit">
+                            <span class="btn-icon">➕</span>
+                            <span class="btn-text">Agregar Gasto</span>
+                        </button>
+                        <button type="button" onclick="cancelarEdicion()" class="btn-cancel-form" id="btnCancelForm" style="display: none;">
+                            Cancelar
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- Tabla de Gastos Mejorada -->
+        <div class="table-card">
+            <div class="table-header">
+                <h2 class="section-title">
+                    <span class="title-icon">📋</span>
+                    Lista de Gastos del Mes
+                </h2>
+                <div class="table-actions">
+                    <div class="search-box">
+                        <input type="text" id="searchInput" placeholder="🔍 Buscar gasto..." onkeyup="buscarGastos()">
+                    </div>
+                    <button onclick="exportarExcelAvanzado()" class="btn-export" id="btnExport">
+                        <span>📥</span> Exportar Excel Pro
+                    </button>
+                </div>
+            </div>
+            <div class="table-container" id="tableContainer">
+                <div class="empty-state">
+                    <div class="empty-icon">💸</div>
+                    <p class="empty-title">No hay gastos registrados en este mes</p>
+                    <small class="empty-subtitle">Comienza agregando tu primer gasto usando el formulario de arriba</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>💰 Gestor Financiero Personal Pro - Tu aliado en finanzas personales</p>
+            <p class="footer-small">Los datos se guardan localmente en tu navegador</p>
+        </footer>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
